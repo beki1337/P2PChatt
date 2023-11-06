@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -9,7 +10,7 @@ using TDDD49Lab.Models.Interfaces;
 
 namespace TDDD49Lab.Models.WrapperModels
 {
-    class TcpClientWrapper:ITcpClient
+    class TcpClientWrapper: ITcpClient
     {
         private readonly TcpClient tcpClient;
 
@@ -26,11 +27,14 @@ namespace TDDD49Lab.Models.WrapperModels
         public void Dispose()
         {
             tcpClient.Dispose();
+            
         }
 
-        public NetworkStream GetStream()
+        public Stream GetStream()
         {
             return tcpClient.GetStream();
         }
+
+        
     }
 }

@@ -1,10 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "J1hCe88Xj/lgdOmF4U0/V3Zif6NLHBgYxf/gn2q7pWy/9TfbKZ9qwFZW2B+41ivMeKlBAhz+CtUrSjqV3LL+wQ==",
+  "dgSpecHash": "gnPFXAZm7KMDrRcbafcuzSYtrl/jhWu1SU0oiifNDcEIgJLxlsA9aMlPMUHR9CxllP5JkRL5HOMWhzTn8CrSHw==",
   "success": true,
-  "projectFilePath": "C:\\Users\\batic\\source\\repos\\TDDD49Lab\\TDDD49Lab\\TDDD49Lab.csproj",
+  "projectFilePath": "C:\\Users\\Dell\\source\\repos\\P2PChatt\\TDDD49Lab\\TDDD49Lab.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\batic\\.nuget\\packages\\newtonsoft.json\\13.0.3\\newtonsoft.json.13.0.3.nupkg.sha512"
+    "C:\\Users\\Dell\\.nuget\\packages\\newtonsoft.json\\13.0.3\\newtonsoft.json.13.0.3.nupkg.sha512"
   ],
   "logs": []
 }

@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\batic\\source\\repos\\TDDD49Lab\\TestProject1\\TestProject1.csproj": {}
+    "C:\\Users\\Dell\\source\\repos\\P2PChatt\\TestProject1\\TestProject1.csproj": {}
   },
   "projects": {
-    "C:\\Users\\batic\\source\\repos\\TDDD49Lab\\TDDD49Lab\\TDDD49Lab.csproj": {
+    "C:\\Users\\Dell\\source\\repos\\P2PChatt\\TDDD49Lab\\TDDD49Lab.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\batic\\source\\repos\\TDDD49Lab\\TDDD49Lab\\TDDD49Lab.csproj",
+        "projectUniqueName": "C:\\Users\\Dell\\source\\repos\\P2PChatt\\TDDD49Lab\\TDDD49Lab.csproj",
         "projectName": "TDDD49Lab",
-        "projectPath": "C:\\Users\\batic\\source\\repos\\TDDD49Lab\\TDDD49Lab\\TDDD49Lab.csproj",
-        "packagesPath": "C:\\Users\\batic\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\batic\\source\\repos\\TDDD49Lab\\TDDD49Lab\\obj\\",
+        "projectPath": "C:\\Users\\Dell\\source\\repos\\P2PChatt\\TDDD49Lab\\TDDD49Lab.csproj",
+        "packagesPath": "C:\\Users\\Dell\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Dell\\source\\repos\\P2PChatt\\TDDD49Lab\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\batic\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Dell\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -64,21 +64,21 @@
               "privateAssets": "none"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.401\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.302\\RuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Users\\batic\\source\\repos\\TDDD49Lab\\TestProject1\\TestProject1.csproj": {
+    "C:\\Users\\Dell\\source\\repos\\P2PChatt\\TestProject1\\TestProject1.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\batic\\source\\repos\\TDDD49Lab\\TestProject1\\TestProject1.csproj",
+        "projectUniqueName": "C:\\Users\\Dell\\source\\repos\\P2PChatt\\TestProject1\\TestProject1.csproj",
         "projectName": "TestProject1",
-        "projectPath": "C:\\Users\\batic\\source\\repos\\TDDD49Lab\\TestProject1\\TestProject1.csproj",
-        "packagesPath": "C:\\Users\\batic\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\batic\\source\\repos\\TDDD49Lab\\TestProject1\\obj\\",
+        "projectPath": "C:\\Users\\Dell\\source\\repos\\P2PChatt\\TestProject1\\TestProject1.csproj",
+        "packagesPath": "C:\\Users\\Dell\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Dell\\source\\repos\\P2PChatt\\TestProject1\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\batic\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Dell\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -92,8 +92,8 @@
           "net7.0-windows7.0": {
             "targetAlias": "net7.0-windows",
             "projectReferences": {
-              "C:\\Users\\batic\\source\\repos\\TDDD49Lab\\TDDD49Lab\\TDDD49Lab.csproj": {
-                "projectPath": "C:\\Users\\batic\\source\\repos\\TDDD49Lab\\TDDD49Lab\\TDDD49Lab.csproj"
+              "C:\\Users\\Dell\\source\\repos\\P2PChatt\\TDDD49Lab\\TDDD49Lab.csproj": {
+                "projectPath": "C:\\Users\\Dell\\source\\repos\\P2PChatt\\TDDD49Lab\\TDDD49Lab.csproj"
               }
             }
           }
@@ -145,7 +145,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.401\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.302\\RuntimeIdentifierGraph.json"
         }
       }
     }

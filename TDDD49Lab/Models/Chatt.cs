@@ -29,7 +29,6 @@ namespace TDDD49Lab.Models
       
         public async Task Serach(ShowMessageBoxDelegate showMessageBox,ITcpClient tcpClient)
         {
-
             if (!_isRunning || !_isConnected)
             {
                 throw new InvalidOperationException("The method cannot be executed because the chatt is running or connected.");
@@ -43,7 +42,7 @@ namespace TDDD49Lab.Models
                 await _tcpClient.ConnectAsync(ipEndPoint);
                 _reader = new StreamReader(_tcpClient.GetStream());
                 _writer = new StreamWriter(_tcpClient.GetStream());
-                new StreamReader(new MemoryStream(Encoding.UTF8.GetBytes("sdsd")));
+               
                 await SendConnectionRequest("Serachin");
                 string otherUserName = await _reader.ReadLineAsync() ?? "null";
                 await AskUserToAcceptConnectionAsync(otherUserName,  showMessageBox);
@@ -188,8 +187,6 @@ namespace TDDD49Lab.Models
             _reader?.Close();
             _writer?.Close();
         }
-
-
 
         public async Task SendMessage(string message)
         {

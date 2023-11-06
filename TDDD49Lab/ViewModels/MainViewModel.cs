@@ -16,7 +16,7 @@ using TDDD49Lab.Models.WrapperModels;
 
 namespace TDDD49Lab.ViewModels
 {
-    class MainViewModel : INotifyPropertyChanged
+    public class MainViewModel : INotifyPropertyChanged
     {
         private IChatt _chatt;
         private ICommand _listenForConnections;
