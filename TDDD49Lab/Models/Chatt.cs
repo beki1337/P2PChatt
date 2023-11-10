@@ -69,7 +69,7 @@ namespace TDDD49Lab.Models
             ITcpListener listener = tcpListener;
 
             listener.Start();
-            TcpClient _tcpClient = await listener.AcceptTcpClientAsync();
+            ITcpClient _tcpClient = await listener.AcceptTcpClientAsync();
             listener.Stop();
             _reader = new StreamReader(_tcpClient.GetStream());
             _writer = new StreamWriter(_tcpClient.GetStream());

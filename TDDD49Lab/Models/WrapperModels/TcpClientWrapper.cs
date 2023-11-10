@@ -19,6 +19,11 @@ namespace TDDD49Lab.Models.WrapperModels
             tcpClient = new TcpClient();
         }
 
+        public TcpClientWrapper(TcpClient tcpClient)
+        {
+            this.tcpClient = tcpClient;
+        }
+
         public Task ConnectAsync(IPEndPoint remoteEP)
         {
             return tcpClient.ConnectAsync(remoteEP);

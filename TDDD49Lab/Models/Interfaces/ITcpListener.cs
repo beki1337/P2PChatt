@@ -9,7 +9,7 @@ namespace TDDD49Lab.Models.Interfaces
 {
     public interface ITcpListener 
     {
-        Task<TcpClient> AcceptTcpClientAsync();
+        Task<ITcpClient> AcceptTcpClientAsync();
 
         void Stop();
         void Start();

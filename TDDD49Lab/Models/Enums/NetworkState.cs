@@ -10,9 +10,9 @@ namespace TDDD49Lab.Models.Enums
     {
         Unknown,
         Ideal,
-        WatingForAccetion,
+        WaitingForHandshake,
         Searching,
-        Listningen,
+        Listening,
         Connected,
 
     }

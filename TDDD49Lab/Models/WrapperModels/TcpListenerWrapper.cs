@@ -19,9 +19,11 @@ namespace TDDD49Lab.Models.WrapperModels
 
         }
 
-        public async Task<TcpClient> AcceptTcpClientAsync()
+        public async Task<ITcpClient> AcceptTcpClientAsync()
         {
-            return await tcpListener.AcceptTcpClientAsync();
+            TcpClient tcpClient = await tcpListener.AcceptTcpClientAsync();
+
+            return new TcpClientWrapper(tcpClient);
         }
 
      

@@ -8,19 +8,19 @@ using System.Threading.Tasks;
 
 namespace TDDD49Lab.Models
 {
-    public class Message
+    public readonly struct Message 
     {
         [JsonPropertyName("Username")]
-        public string Username { get; set; }
+        public string Username { get; }
 
         [JsonPropertyName("MessageText")]
-        public string MessageText { get; set; }
+        public string MessageText { get; }
 
         [JsonPropertyName("DateTime")]
-        public DateTime DateTime { get; set; }
+        public DateTime DateTime { get; }
 
         [JsonPropertyName("IsYourMessage")]
-        public bool IsYourMessage { get; set; }
+        public bool IsYourMessage { get;  }
 
         public Message(string Username, string MessageText, bool IsYourMessage, DateTime DateTime)
         {
