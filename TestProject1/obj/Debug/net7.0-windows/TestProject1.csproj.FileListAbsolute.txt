@@ -212,3 +212,4 @@ C:\Users\batic\source\repos\TDDD49Lab\TestProject1\obj\Debug\net7.0-windows\refi
 C:\Users\batic\source\repos\TDDD49Lab\TestProject1\obj\Debug\net7.0-windows\TestProject1.pdb
 C:\Users\batic\source\repos\TDDD49Lab\TestProject1\obj\Debug\net7.0-windows\TestProject1.genruntimeconfig.cache
 C:\Users\batic\source\repos\TDDD49Lab\TestProject1\obj\Debug\net7.0-windows\ref\TestProject1.dll
+C:\Users\Dell\source\repos\P2PChatt\TestProject1\bin\Debug\net7.0-windows\CoverletSourceRootsMapping_TestProject1

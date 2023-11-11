@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TDDD49Lab.Models.Interfaces
 {
-    public interface INetworkProtocol<T>  where T : struct
+    public interface INetworkProtocol<T>  where T : IMessage
     {
 
         Task<string> CreateMessageAsync(string message);

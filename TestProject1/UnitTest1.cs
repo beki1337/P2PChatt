@@ -19,7 +19,7 @@ namespace TestProject1
             // Arrange
             var mockITcoListner = new Mock<ITcpListener>();
 
-            var mockINetworkProtocol = new Mock<INetworkProtocol>();
+            var mockINetworkProtocol = new Mock<INetworkProtocol<int>>();
             mockINetworkProtocol.Setup(x => x.DecodeStringeAsync(It.IsAny<string>())).ReturnsAsync((string input) => input);
             var mockITcpClient = new Mock<ITcpClient>();
             string testData = "This is a test string.";
@@ -34,7 +34,7 @@ namespace TestProject1
             Func<ITcpClient> createClient = () => mockITcpClient.Object;
             Func<IPEndPoint, ITcpListener> createListner = (IPEndPoint enPoint) => mockITcoListner.Object;
 
-            NetworkHandler networkHandler = new NetworkHandler(createListner, createClient,mockINetworkProtocol.Object);
+            NetworkHandler networkHandler = new NetworkHandler<int>(createListner, createClient,mockINetworkProtocol.Object);
 
 
             // Act

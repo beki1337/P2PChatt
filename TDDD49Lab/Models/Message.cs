@@ -5,10 +5,11 @@ using System.Linq;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using TDDD49Lab.Models.Interfaces;
 
 namespace TDDD49Lab.Models
 {
-    public readonly struct Message 
+    public readonly struct Message : IMessage
     {
         [JsonPropertyName("Username")]
         public string Username { get; }

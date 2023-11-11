@@ -46,3 +46,5 @@ C:\Users\Dell\source\repos\P2PChatt\TDDD49Lab\obj\Debug\net7.0-windows\TDDD49Lab
 C:\Users\Dell\source\repos\P2PChatt\TDDD49Lab\obj\Debug\net7.0-windows\ref\TDDD49Lab.dll
 C:\Users\batic\source\repos\TDDD49Lab\TDDD49Lab\bin\Debug\net7.0-windows\Castle.Core.dll
 C:\Users\batic\source\repos\TDDD49Lab\TDDD49Lab\bin\Debug\net7.0-windows\Moq.dll
+C:\Users\Dell\source\repos\P2PChatt\TDDD49Lab\bin\Debug\net7.0-windows\Castle.Core.dll
+C:\Users\Dell\source\repos\P2PChatt\TDDD49Lab\bin\Debug\net7.0-windows\Moq.dll

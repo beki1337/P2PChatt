@@ -3,21 +3,18 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.Sockets;
-using System.Reflection.PortableExecutable;
-using System.Text;
 using System.Threading.Tasks;
 using TDDD49Lab.Models.Enums;
 using TDDD49Lab.Models.Interfaces;
 
 namespace TDDD49Lab.Models
 {
-    public class NetworkHandler<T> : IDisposable
+    public class NetworkHandler<T> :IDisposable where T : IMessage
     {
 
         private NetworkState state = NetworkState.Ideal;
 
-        private INetworkProtocol<T> networkProtocol;
+        private readonly INetworkProtocol<T> networkProtocol;
 
         private readonly Func<IPEndPoint,ITcpListener> createListerner; 
 
