@@ -9,14 +9,19 @@ namespace TDDD49Lab.Models.Interfaces
     public interface INetworkProtocol<T>  where T : IMessage
     {
 
-        Task<string> CreateMessageAsync(string message);
+        T CreateMessage(string username, string message);
 
-        Task<string> CreateConnectionRequestStringAsync(string username);
+        T CreateConnectionHandshake(string username);
 
-        Task<string> CreateDisconnectStringAsync(string username);
+        T CreateDeclineHandshake(string username);
 
-        Task<T> DecodeStringeAsync(string recivedString);   
+        T CreateAcceptHandshake(string username);
 
+        T CreateDisconnect(string username);
+
+        T CreateBuzz(string username);
+
+         
 
     }
 }

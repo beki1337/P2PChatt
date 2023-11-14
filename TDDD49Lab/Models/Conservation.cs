@@ -6,65 +6,52 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows;
+using TDDD49Lab.Models.Interfaces;
 
 namespace TDDD49Lab.Models
 {
-    internal class Conservation
+    public class Conservation<T> : IConservation<T>
     {
-        private List<Message> messages;
+        private readonly List<T> messages = new List<T>();
+ 
+        private readonly Stream outputStream;
 
-        private string otheruser = "Deuflr User";
+        private IDataSerialize<T> dataSerializeToFormat;
 
-        private readonly string directoryPath = @"C:\ChattConservationTddd49";
-
-        private JsonSerializerOptions options = new JsonSerializerOptions { WriteIndented = true };
-
-        public Conservation( string otheruser) { 
-            messages = new List<Message>();
-       
-            this.otheruser = otheruser;
-            CreateDirectory(directoryPath);
+        public Conservation(Stream stream, IDataSerialize<T> serializer) {
+            this.outputStream = stream;
+            this.dataSerializeToFormat = serializer;
         }
 
-        public void AddMessage(Message message)
+        public async Task AddMessage(T message)
         {
             messages.Add(message);
+            if (this.messages.Count >= 10)
+            {
+                await SendToWritteAsync();
+            }
             
         }
 
-        public async Task SendToWritte()
+        private async Task SendToWritteAsync()
         {
-            // Replace with your desired directory
-            string fileName = createFileName(otheruser);
 
-            // Combine the directory path and file name to create the full file path
-            string filePath = Path.Combine(directoryPath, fileName);
-            string convservationJson = JsonSerializer.Serialize(new ConservationJsonSyntaxt(messages, "listen", "sdfdsf"));
-            MessageBox.Show(convservationJson);
-            await File.WriteAllTextAsync(filePath, convservationJson);
-            messages.Clear();
-            MessageBox.Show("We have called the add ");
-        }
-        
-
-        private string createFileName(string otherUser)
-        {
-            DateTime now = DateTime.Now;
-
-            // Format the DateTime as a string that can be used as a file name
-            string formattedFileName = now.ToString("yyyy-MM-dd HH-mm-ss");
-            return $"{otheruser}-{formattedFileName}.json";
-        }
-
-
-        private void CreateDirectory(string directoryPath)
-        {
-            if (!Directory.Exists(directoryPath))
+            using (StreamWriter streamWriter = new StreamWriter(outputStream))
             {
-                Directory.CreateDirectory(directoryPath);
-            }
-        }
+                // Combine the directory path and file name to create the full file path
+                foreach (var message in messages)
+                {
 
+                    string serilazedObject = dataSerializeToFormat.SerializeToFormat(message);
+
+                    await streamWriter.WriteAsync(serilazedObject);
+
+                }
+                await streamWriter.FlushAsync();
+            }
+            messages.Clear();
+           
+        }
 
     }
 }

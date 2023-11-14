@@ -4,6 +4,7 @@ using System.DirectoryServices.ActiveDirectory;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace TDDD49Lab.Models
@@ -11,14 +12,22 @@ namespace TDDD49Lab.Models
     public readonly struct ConservationFilename
     {
 
+        private readonly string pattern = @"(?<Username>[^\d]+)-(?<Date>\d{4}-\d{2}-\d{2} \d{2}-\d{2}-\d{2})";
 
+        public string User { get; init; }
+        public DateTime ConnverstionHappend { get; init; }
         public ConservationFilename(string filename) {
-            int datetimeLenght = 19;
-            string cleanfilename = filename.Substring(0, filename.Length - 5);
-            string username = cleanfilename.Substring(0, cleanfilename.Length - 20);
-            User = username;
-            string datetimeString = cleanfilename.Substring(cleanfilename.Length - datetimeLenght);
-            if (DateTime.TryParseExact(datetimeString, "yyyy-MM-dd HH-mm-ss", null, DateTimeStyles.None, out DateTime result))
+
+            Match match = Regex.Match(filename, pattern);
+
+            if (!match.Success)
+            {
+                throw new ArgumentException("The file dose is not vaild");
+            }
+
+            User = match.Groups["Usernam"].Value;  
+            
+            if (DateTime.TryParseExact(match.Groups["Date"].Value, "yyyy-MM-dd HH-mm-ss", null, DateTimeStyles.None, out DateTime result))
             {
                 // Parsing successful, 'result' now contains the DateTime object.
                 ConnverstionHappend = result;
@@ -30,11 +39,6 @@ namespace TDDD49Lab.Models
             }
         }
    
-        public string User { get; init; }
-
-        public DateTime ConnverstionHappend { get; init; }
-
-
         public override string ToString()
         {
             return $"{User}-{ConnverstionHappend.ToString("yyyy-MM-dd HH-mm-ss")}";

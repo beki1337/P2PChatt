@@ -23,12 +23,16 @@ namespace TDDD49Lab.Models
         [JsonPropertyName("IsYourMessage")]
         public bool IsYourMessage { get;  }
 
-        public Message(string Username, string MessageText, bool IsYourMessage, DateTime DateTime)
+        [JsonPropertyName("NetworkProtocolType")]
+        public NetworkProtocolTypes NetworkProtocolType { get; }
+
+        public Message(string Username, string MessageText, bool IsYourMessage, DateTime DateTime, NetworkProtocolTypes NetworkProtocolType)
         {
             this.Username = Username;
             this.MessageText = MessageText;
             this.DateTime = DateTime;
             this.IsYourMessage = IsYourMessage;
+            this.NetworkProtocolType = NetworkProtocolType;
             
         }
 

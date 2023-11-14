@@ -12,6 +12,7 @@ namespace TDDD49Lab.Models.Interfaces
         string MessageText { get; }
         DateTime DateTime { get; }
         bool IsYourMessage { get; }
+        NetworkProtocolTypes NetworkProtocolType { get; }
 
     }
 }

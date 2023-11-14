@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 
 namespace TDDD49Lab.Models
 {
-    internal enum NetworkProtocolTypes
+    public enum NetworkProtocolTypes
     {
         Message,
         EstablishConnection,
         Buzz,
         Disconnect,
         DeniedConnection,
-        CloseConnection
+        AcceptConnection
     }
 }
