@@ -1,5 +1,7 @@
 using Moq;
+using System.CodeDom;
 using System.Net;
+using System.Reflection.PortableExecutable;
 using System.Text;
 using System.Windows.Documents;
 using TDDD49Lab;
@@ -19,8 +21,10 @@ namespace TestProject1
             // Arrange
             var mockITcoListner = new Mock<ITcpListener>();
 
-            var mockINetworkProtocol = new Mock<INetworkProtocol<int>>();
-            mockINetworkProtocol.Setup(x => x.DecodeStringeAsync(It.IsAny<string>())).ReturnsAsync((string input) => input);
+            var mockINetworkProtocol = new Mock<INetworkProtocol<IMessage>>();
+            var mockDataSerializer = new Mock<IDataSerialize<IMessage>>();
+            mockDataSerializer.Setup(x => x.DeserializeFromFormat(It.IsAny<string>())).Returns((string message) =>new Message("Sending", message, false, DateTime.Now, NetworkProtocolTypes.Message));   
+            
             var mockITcpClient = new Mock<ITcpClient>();
             string testData = "This is a test string.";
             byte[] testBytes = Encoding.UTF8.GetBytes(testData);
@@ -34,14 +38,14 @@ namespace TestProject1
             Func<ITcpClient> createClient = () => mockITcpClient.Object;
             Func<IPEndPoint, ITcpListener> createListner = (IPEndPoint enPoint) => mockITcoListner.Object;
 
-            NetworkHandler networkHandler = new NetworkHandler<int>(createListner, createClient,mockINetworkProtocol.Object);
+            NetworkHandler<IMessage> networkHandler = new NetworkHandler<IMessage>(createListner, createClient,mockINetworkProtocol.Object, mockDataSerializer.Object);
 
 
             // Act
-            string username = await networkHandler.Connect("127.0.0.1", 80);
+            IMessage username = await networkHandler.Connect("127.0.0.1", 80);
 
             // Assert
-            Assert.AreEqual(username, testData);
+            Assert.AreEqual(username.MessageText, testData);
 
         }
 
@@ -49,8 +53,10 @@ namespace TestProject1
         public async Task TestWrongFormat()
         {
             // Arrange
-            var mockINetworkProtocol = new Mock<INetworkProtocol>();
+            var mockINetworkProtocol = new Mock<INetworkProtocol<IMessage>>();
             var mockITcoListner = new Mock<ITcpListener>();
+            var mockDataSerializer = new Mock<IDataSerialize<IMessage>>();
+            mockDataSerializer.Setup(x => x.DeserializeFromFormat(It.IsAny<string>())).Returns(new Message("Sending", "Message", false, DateTime.Now, NetworkProtocolTypes.Message));
 
             var mockITcpClient = new Mock<ITcpClient>();
             string testData = "This is a test string.";
@@ -65,23 +71,25 @@ namespace TestProject1
             Func<ITcpClient> createClient = () => mockITcpClient.Object;
             Func<IPEndPoint, ITcpListener> createListner = (IPEndPoint enPoint) => mockITcoListner.Object;
 
-            NetworkHandler networkHandler = new NetworkHandler(createListner, createClient, mockINetworkProtocol.Object);
+            NetworkHandler<IMessage> networkHandler = new NetworkHandler<IMessage>(createListner, createClient, mockINetworkProtocol.Object,mockDataSerializer.Object);
 
 
             // Act && Assert
             await Assert.ThrowsExceptionAsync<ArgumentException>(async () =>
             {
-                string username = await networkHandler.Connect("Invalid IP address format.", 80);
+                _ = await networkHandler.Connect("Invalid IP address format.", 80);
             });
 
         }
 
         [TestMethod]
-        public async Task ReciviedNullUsername()
+         public async Task ReciviedNullUsername()
         {
             // Arrange
 
-            var mockINetworkProtocol = new Mock<INetworkProtocol>();
+            var mockINetworkProtocol = new Mock<INetworkProtocol<IMessage>> ();
+            var mockDataSerializer = new Mock<IDataSerialize<IMessage>>();
+           
             var mockITcoListner = new Mock<ITcpListener>();
 
             var mockITcpClient = new Mock<ITcpClient>();
@@ -97,14 +105,14 @@ namespace TestProject1
             Func<ITcpClient> createClient = () => mockITcpClient.Object;
             Func<IPEndPoint, ITcpListener> createListner = (IPEndPoint enPoint) => mockITcoListner.Object;
 
-            NetworkHandler networkHandler = new NetworkHandler(createListner, createClient, mockINetworkProtocol.Object);
+            NetworkHandler<IMessage> networkHandler = new NetworkHandler<IMessage>(createListner, createClient, mockINetworkProtocol.Object, mockDataSerializer.Object);
 
 
             // Act && Assert
 
             await Assert.ThrowsExceptionAsync<InvalidOperationException>(async () =>
             {
-                string username = await networkHandler.Connect("127.0.0.1", 80);
+                _ = await networkHandler.Connect("127.0.0.1", 80);
             });
         }
 
@@ -114,8 +122,9 @@ namespace TestProject1
         public async Task StartListningen()
         {
             // Arrange
-            var mockINetworkProtocol = new Mock<INetworkProtocol>();
-            mockINetworkProtocol.Setup(x => x.DecodeStringeAsync(It.IsAny<string>())).ReturnsAsync((string input) => input);
+            var mockINetworkProtocol = new Mock<INetworkProtocol<IMessage>>();
+            var mockDataSerializer = new Mock<IDataSerialize<IMessage>>();
+            mockDataSerializer.Setup(x => x.DeserializeFromFormat(It.IsAny<string>())).Returns(new Message("Sending", "This is a test string.", false, DateTime.Now, NetworkProtocolTypes.Message));
             var mockTcpListner = new Mock<ITcpListener>();
             var mockITcpClient = new Mock<ITcpClient>();
             mockTcpListner.Setup(x => x.AcceptTcpClientAsync())
@@ -130,13 +139,13 @@ namespace TestProject1
                 .Returns(new MemoryStream(testBytes));
             Func<ITcpClient> createClient = () => mockITcpClient.Object;
             Func<IPEndPoint, ITcpListener> createListner = (IPEndPoint enPoint) => mockTcpListner.Object;
-            NetworkHandler networkHandler = new NetworkHandler(createListner, createClient, mockINetworkProtocol.Object);
+            NetworkHandler<IMessage> networkHandler = new NetworkHandler<IMessage>(createListner, createClient, mockINetworkProtocol.Object, mockDataSerializer.Object);
             // Act
-            string username = await networkHandler.Listen("127.0.0.1", 80);
+            IMessage username = await networkHandler.Listen("127.0.0.1", 80);
 
             // Assert
 
-            Assert.AreEqual(username, testData);
+            Assert.AreEqual(username.MessageText, testData);
         }
 
 
@@ -144,8 +153,9 @@ namespace TestProject1
         public async Task TestReadMessageNotCorrectState()
         {
             // Arrange
-            var mockINetworkProtocol = new Mock<INetworkProtocol>();
-            mockINetworkProtocol.Setup(x => x.DecodeStringeAsync(It.IsAny<string>())).ReturnsAsync((string input) => input);
+            var mockINetworkProtocol = new Mock<INetworkProtocol<IMessage>>();
+            var mockDataSerializer = new Mock<IDataSerialize<IMessage>>();
+            mockDataSerializer.Setup(x => x.DeserializeFromFormat(It.IsAny<string>())).Returns(new Message("Sending", "Message", false, DateTime.Now, NetworkProtocolTypes.Message));
             var mockTcpListner = new Mock<ITcpListener>();
             var mockITcpClient = new Mock<ITcpClient>();
             mockTcpListner.Setup(x => x.AcceptTcpClientAsync())
@@ -160,7 +170,7 @@ namespace TestProject1
                 .Returns(new MemoryStream(testBytes));
             Func<ITcpClient> createClient = () => mockITcpClient.Object;
             Func<IPEndPoint, ITcpListener> createListner = (IPEndPoint enPoint) => mockTcpListner.Object;
-            NetworkHandler networkHandler = new NetworkHandler(createListner, createClient, mockINetworkProtocol.Object);
+            NetworkHandler<IMessage> networkHandler = new NetworkHandler<IMessage>(createListner, createClient, mockINetworkProtocol.Object, mockDataSerializer.Object);
             // Act & Assert
             await Assert.ThrowsExceptionAsync<InvalidOperationException>(async () => {
                 await using var enumerator = networkHandler.GetMessages().GetAsyncEnumerator();
@@ -174,8 +184,9 @@ namespace TestProject1
         public async Task TestReadMessageCorrectState()
         {
             // Arrange
-            var mockINetworkProtocol = new Mock<INetworkProtocol>();
-            mockINetworkProtocol.Setup(x => x.DecodeStringeAsync(It.IsAny<string>())).ReturnsAsync((string input) => input);
+            var mockINetworkProtocol = new Mock<INetworkProtocol<IMessage>>();
+            var mockDataSerializer = new Mock<IDataSerialize<IMessage>>();
+            mockDataSerializer.Setup(x => x.DeserializeFromFormat(It.IsAny<string>())).Returns((string message)=>new Message("Sending", message, false, DateTime.Now, NetworkProtocolTypes.Message));
             var mockTcpListner = new Mock<ITcpListener>();
             var mockITcpClient = new Mock<ITcpClient>();
             mockTcpListner.Setup(x => x.AcceptTcpClientAsync())
@@ -190,17 +201,17 @@ namespace TestProject1
                 .Returns(new MemoryStream(testBytes));
             Func<ITcpClient> createClient = () => mockITcpClient.Object;
             Func<IPEndPoint, ITcpListener> createListner = (IPEndPoint enPoint) => mockTcpListner.Object;
-            NetworkHandler networkHandler = new NetworkHandler(createListner, createClient, mockINetworkProtocol.Object);
+            NetworkHandler<IMessage> networkHandler = new NetworkHandler<IMessage>(createListner, createClient, mockINetworkProtocol.Object,mockDataSerializer.Object);
             
             // Act
-            string username = await networkHandler.Connect("127.0.0.1", 80);
-            networkHandler.AccepetConnection();
+            IMessage username = await networkHandler.Connect("127.0.0.1", 80);
+            //networkHandler.AccepetConnection();
             await using var enumerator = networkHandler.GetMessages().GetAsyncEnumerator();
             await enumerator.MoveNextAsync();
             // Assert
 
-            string? message = enumerator.Current;
-            Assert.AreEqual("Here gose the other string.", message);
+            IMessage message = enumerator.Current;
+            Assert.AreEqual("Here gose the other string.", message.MessageText);
 
         }
 
@@ -208,8 +219,9 @@ namespace TestProject1
         [TestMethod]
         public async Task TestReadMessage()
         {
-            var mockINetworkProtocol = new Mock<INetworkProtocol>();
-            mockINetworkProtocol.Setup(x => x.DecodeStringeAsync(It.IsAny<string>())).ReturnsAsync((string input) => input);
+            var mockINetworkProtocol = new Mock<INetworkProtocol<IMessage>>();
+            var mockDataSerializer = new Mock<IDataSerialize<IMessage>>();
+            mockDataSerializer.Setup(x => x.DeserializeFromFormat(It.IsAny<string>())).Returns((string message)=>new Message("Sending", message, false, DateTime.Now, NetworkProtocolTypes.Message));
             var mockTcpListner = new Mock<ITcpListener>();
             var mockITcpClient = new Mock<ITcpClient>();
             mockTcpListner.Setup(x => x.AcceptTcpClientAsync())
@@ -217,7 +229,7 @@ namespace TestProject1
 
             mockTcpListner.Setup(x => x.Start());
             mockTcpListner.Setup(x => x.Stop());
-            string testData = "This is a test string.\n";
+            string testData = "This is a test string.\n Hello World";
             byte[] testBytes = Encoding.UTF8.GetBytes(testData);
             MemoryStream memoryStream = new MemoryStream(testBytes);
             mockITcpClient
@@ -225,25 +237,30 @@ namespace TestProject1
                 .Returns(memoryStream);
             Func<ITcpClient> createClient = () => mockITcpClient.Object;
             Func<IPEndPoint, ITcpListener> createListner = (IPEndPoint enPoint) => mockTcpListner.Object;
-            NetworkHandler networkHandler = new NetworkHandler(createListner, createClient, mockINetworkProtocol.Object);
+            NetworkHandler<IMessage> networkHandler = new NetworkHandler<IMessage>(createListner, createClient, mockINetworkProtocol.Object,mockDataSerializer.Object);
 
             // Act
-            string username = await networkHandler.Connect("127.0.0.1", 80);
-            networkHandler.AccepetConnection();
+            IMessage username = await networkHandler.Connect("127.0.0.1", 80);
+            //networkHandler.AccepetConnection();
             await using var enumerator = networkHandler.GetMessages().GetAsyncEnumerator();
             await enumerator.MoveNextAsync();
             // Assert
 
-            string? message = enumerator.Current;
-            Assert.AreEqual(null, message);
+            IMessage? message = enumerator.Current;
+            Assert.AreEqual(" Hello World", message.MessageText);
         }
 
         [TestMethod]
         public async Task SendMessage()
         {
-            var mockINetworkProtocol = new Mock<INetworkProtocol>();
-            mockINetworkProtocol.Setup(x => x.DecodeStringeAsync(It.IsAny<string>())).ReturnsAsync((string input) => "input");
-            mockINetworkProtocol.Setup(x => x.CreateMessageAsync(It.IsAny<string>())).ReturnsAsync((string input) => input);
+            var mockINetworkProtocol = new Mock<INetworkProtocol<IMessage>>();
+            var mockDataSerializer = new Mock<IDataSerialize<IMessage>>();
+            mockDataSerializer.Setup(x => x.DeserializeFromFormat(It.IsAny<string>())).Returns(new Message("Sending", "Message", false, DateTime.Now, NetworkProtocolTypes.Message));
+            mockDataSerializer.Setup(x => x.SerializeToFormat(It.IsAny<Message>())).Returns("This is nice"); 
+            mockINetworkProtocol.Setup(x => x.CreateMessage(It.IsAny<string>(), It.IsAny<string>())).Returns(new Message("Sending", "Message", false, DateTime.Now, NetworkProtocolTypes.Message));
+            
+            
+            
             var mockTcpListner = new Mock<ITcpListener>();
             var mockITcpClient = new Mock<ITcpClient>();
             mockTcpListner.Setup(x => x.AcceptTcpClientAsync())
@@ -251,26 +268,40 @@ namespace TestProject1
 
             mockTcpListner.Setup(x => x.Start());
             mockTcpListner.Setup(x => x.Stop());
-            string testData = "This is a test string.\n Hello world\n";
+
+
+            string testData = "This is a test string.\n Hello \n";
             byte[] testBytes = Encoding.UTF8.GetBytes(testData);
-            MemoryStream memoryStream = new MemoryStream(1020);
+            MemoryStream memoryStream = new MemoryStream();
+            await memoryStream.WriteAsync(testBytes, 0, testBytes.Length);
+            
+
+
+           
             mockITcpClient
-                .Setup(x => x.GetStream())
-                .Returns(memoryStream);
+               .Setup(x => x.GetStream())
+               .Returns(memoryStream);
+
+
+            var dd = memoryStream.Position;
+            memoryStream.Position = 0;
+
+           
             Func<ITcpClient> createClient = () => mockITcpClient.Object;
             Func<IPEndPoint, ITcpListener> createListner = (IPEndPoint enPoint) => mockTcpListner.Object;
-            NetworkHandler networkHandler = new NetworkHandler(createListner, createClient, mockINetworkProtocol.Object);
-            string messageToSend = "Hello world";
+            NetworkHandler<IMessage> networkHandler =
+                new NetworkHandler<IMessage>(createListner, createClient, mockINetworkProtocol.Object, mockDataSerializer.Object);
+            string messageToSend = "This is nice";
 
             // Act
-            string username = await networkHandler.Connect("127.0.0.1", 80);
-            networkHandler.AccepetConnection();
+            IMessage username = await networkHandler.Connect("127.0.0.1", 80);
+            //networkHandler.AccepetConnection();
             await networkHandler.SendMessage(messageToSend);
 
             // Assert
-            memoryStream.Position = 0;
+            memoryStream.Position = dd;
             using StreamReader reader = new StreamReader(memoryStream);
-            string? contentOnStream = await reader.ReadLineAsync();
+            string? contentOnStream = await reader.ReadToEndAsync();
             Assert.AreEqual(messageToSend, contentOnStream);
 
 
@@ -280,9 +311,13 @@ namespace TestProject1
         [TestMethod]
         public async Task SendMessageNTimes()
         {
-            var mockINetworkProtocol = new Mock<INetworkProtocol>();
-            mockINetworkProtocol.Setup(x => x.DecodeStringeAsync(It.IsAny<string>())).ReturnsAsync((string input) => "input");
-            mockINetworkProtocol.Setup(x => x.CreateMessageAsync(It.IsAny<string>())).ReturnsAsync((string input) => input);
+            var mockINetworkProtocol = new Mock<INetworkProtocol<IMessage>>();
+            var mockDataSerializer = new Mock<IDataSerialize<IMessage>>();
+            mockDataSerializer.Setup(x => x.DeserializeFromFormat(It.IsAny<string>())).Returns(new Message("Sending", "Mfgdfessage", false, DateTime.Now, NetworkProtocolTypes.Message));
+            mockDataSerializer.Setup(x => x.SerializeToFormat(It.IsAny<Message>())).Returns((IMessage message) => message.MessageText);
+            mockINetworkProtocol.Setup(x => x.CreateMessage(It.IsAny<string>(), It.IsAny<string>())).Returns( (string user,string message ) =>new Message("Sending", message, false, DateTime.Now, NetworkProtocolTypes.Message));
+
+
             var mockTcpListner = new Mock<ITcpListener>();
             var mockITcpClient = new Mock<ITcpClient>();
             mockTcpListner.Setup(x => x.AcceptTcpClientAsync())
@@ -293,21 +328,28 @@ namespace TestProject1
             string testData = "This is a test string.\n Hello world\n";
             byte[] testBytes = Encoding.UTF8.GetBytes(testData);
             MemoryStream memoryStream = new MemoryStream(1020);
+           
+            await memoryStream.WriteAsync(testBytes, 0, testBytes.Length);
             mockITcpClient
                 .Setup(x => x.GetStream())
                 .Returns(memoryStream);
+
+
+            var dd = memoryStream.Position;
+            memoryStream.Position = 0;
+
             Func<ITcpClient> createClient = () => mockITcpClient.Object;
             Func<IPEndPoint, ITcpListener> createListner = (IPEndPoint enPoint) => mockTcpListner.Object;
-            NetworkHandler networkHandler = new NetworkHandler(createListner, createClient, mockINetworkProtocol.Object);
+            NetworkHandler<IMessage> networkHandler = new NetworkHandler<IMessage>(createListner, createClient, mockINetworkProtocol.Object, mockDataSerializer.Object);
             string messageToSend = "1\n2\n3\n4\n";
 
             // Act
-            string username = await networkHandler.Connect("127.0.0.1", 80);
-            networkHandler.AccepetConnection();
+            IMessage username = await networkHandler.Connect("127.0.0.1", 80);
+            //networkHandler.AccepetConnection();
             await networkHandler.SendMessage(messageToSend);
 
             // Assert
-            memoryStream.Position = 0;
+            memoryStream.Position = dd;
             using StreamReader reader = new StreamReader(memoryStream);
             string? contentOnStream = await reader.ReadLineAsync();
             Assert.AreEqual("1", contentOnStream);
@@ -332,9 +374,11 @@ namespace TestProject1
         [TestMethod]
         public async Task SendMessageEmptyMessage()
         {
-            var mockINetworkProtocol = new Mock<INetworkProtocol>();
-            mockINetworkProtocol.Setup(x => x.DecodeStringeAsync(It.IsAny<string>())).ReturnsAsync((string input) => "input");
-            mockINetworkProtocol.Setup(x => x.CreateMessageAsync(It.IsAny<string>())).ReturnsAsync((string input) => input);
+            var mockINetworkProtocol = new Mock<INetworkProtocol<IMessage>>();
+            var mockDataSerializer = new Mock<IDataSerialize<IMessage>>();
+            mockDataSerializer.Setup(x => x.DeserializeFromFormat(It.IsAny<string>())).Returns(new Message("Sending", "Message", false, DateTime.Now, NetworkProtocolTypes.Message));
+            mockINetworkProtocol.Setup(x => x.CreateMessage(It.IsAny<string>(), It.IsAny<string>())).Returns((string user, string message) => new Message("Sending", message, false, DateTime.Now, NetworkProtocolTypes.Message));
+            mockDataSerializer.Setup(x => x.SerializeToFormat(It.IsAny<Message>())).Returns((IMessage message) => message.MessageText);
             var mockTcpListner = new Mock<ITcpListener>();
             var mockITcpClient = new Mock<ITcpClient>();
             mockTcpListner.Setup(x => x.AcceptTcpClientAsync())
@@ -345,24 +389,27 @@ namespace TestProject1
             string testData = "This is a test string.\n Hello world\n";
             byte[] testBytes = Encoding.UTF8.GetBytes(testData);
             MemoryStream memoryStream = new MemoryStream(1020);
+            await memoryStream.WriteAsync(testBytes, 0, testBytes.Length);
             mockITcpClient
                 .Setup(x => x.GetStream())
                 .Returns(memoryStream);
             Func<ITcpClient> createClient = () => mockITcpClient.Object;
             Func<IPEndPoint, ITcpListener> createListner = (IPEndPoint enPoint) => mockTcpListner.Object;
-            NetworkHandler networkHandler = new NetworkHandler(createListner, createClient, mockINetworkProtocol.Object);
+            NetworkHandler<IMessage> networkHandler = new NetworkHandler<IMessage>(createListner, createClient, mockINetworkProtocol.Object, mockDataSerializer.Object);
             string messageToSend = "";
+            var dd = memoryStream.Position;
+            memoryStream.Position = 0;
 
             // Act
-            string username = await networkHandler.Connect("127.0.0.1", 80);
-            networkHandler.AccepetConnection();
+            IMessage username = await networkHandler.Connect("127.0.0.1", 80);
+            //networkHandler.AccepetConnection();
             await networkHandler.SendMessage(messageToSend);
 
             // Assert
-            memoryStream.Position = 0;
+            memoryStream.Position = dd;
             using StreamReader reader = new StreamReader(memoryStream);
-            string? contentOnStream = await reader.ReadLineAsync();
-            Assert.IsNull(contentOnStream);
+            string? contentOnStream = await reader.ReadToEndAsync();
+            Assert.AreEqual("", contentOnStream);
 
 
         }

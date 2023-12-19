@@ -22,7 +22,7 @@ namespace TestProject1
         public void TestVaildFilenames(string filename,string expectedFilename)
         {
             ConservationFilename conservationFilename = new ConservationFilename(filename);
-            Assert.AreEqual(expectedFilename, conservationFilename);
+            Assert.AreEqual(expectedFilename, conservationFilename.ToString());
         }
 
         [TestMethod]

@@ -1,22 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TDDD49Lab.Models.Interfaces;
+﻿using System.Threading.Tasks;
 using static TDDD49Lab.Models.Chatt;
 
 namespace TDDD49Lab.Models
 {
     public interface IChatt
     {
-       
-        Task Serach(ShowMessageBoxDelegate showMessageBox, ITcpClient tcpClient);
-        Task StartListingForUsers(ShowMessageBoxDelegate showMessageBox, ITcpListener tcpListener);
+
+        Task<string> SearchAsync(string username, string ipAddres, int port);
+        Task<string> StartListingForUsersAsync(string username, string ipAddres,int port );
         bool IsRunning();
-        Task Disconnect();
-        Task SendMessage(string message);
-        Task SendUserMessage(string username, string message);
+        Task DisconnectAsync();
+        Task SendMessageAsync(string message);
+        Task DeclineRequest();
+        Task ListenForMessagesAsync();
+        Task<bool> AcceptRequest();
+
+        //Task SendUserMessageAsync(string username, string message);
         void SubscribeToMessage(MessageRecivedEventHandler method);
+        void SubscribeToDisconnec(DisconnecRecivedEventHandler method);
     }
 }

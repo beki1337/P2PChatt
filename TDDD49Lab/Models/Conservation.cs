@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Text.Json;
 using System.Threading.Tasks;
-using System.Windows;
 using TDDD49Lab.Models.Interfaces;
 
 namespace TDDD49Lab.Models
@@ -33,23 +28,24 @@ namespace TDDD49Lab.Models
             
         }
 
+        public  async Task CloseConservationAsync()
+        {
+            await SendToWritteAsync();
+        }
+
         private async Task SendToWritteAsync()
         {
 
-            using (StreamWriter streamWriter = new StreamWriter(outputStream))
-            {
-                // Combine the directory path and file name to create the full file path
-                foreach (var message in messages)
-                {
+            StreamWriter streamWriter = new StreamWriter(outputStream);
+           // Combine the directory path and file name to create the full file path
+           foreach (var message in messages)
+           {
+              string serilazedObject = dataSerializeToFormat.SerializeToFormat(message);
+              await streamWriter.WriteAsync(serilazedObject);
 
-                    string serilazedObject = dataSerializeToFormat.SerializeToFormat(message);
-
-                    await streamWriter.WriteAsync(serilazedObject);
-
-                }
-                await streamWriter.FlushAsync();
-            }
-            messages.Clear();
+           }
+           await streamWriter.FlushAsync();
+           messages.Clear();
            
         }
 

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TDDD49Lab.Models.Enums
 {
-    internal enum NetworkState
+    public enum NetworkState
     {
         Unknown,
         Ideal,

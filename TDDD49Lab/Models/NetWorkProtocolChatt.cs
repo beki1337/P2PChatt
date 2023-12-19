@@ -38,7 +38,7 @@ namespace TDDD49Lab.Models
             NetworkProtocolTypes.Buzz => "buzz",
             NetworkProtocolTypes.Disconnect => "disconnect",
             NetworkProtocolTypes.DeniedConnection => "deniedconnection",
-            NetworkProtocolTypes.CloseConnection => "closeconnection",
+            
             _ => throw new ArgumentException("The provided type does not exist"),
         };
 

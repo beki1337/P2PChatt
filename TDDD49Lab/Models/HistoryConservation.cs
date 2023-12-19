@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualBasic.FileIO;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -9,20 +10,42 @@ using TDDD49Lab.Models.Interfaces;
 
 namespace TDDD49Lab.Models
 {
-    internal class HistoryConservation<T> : IHistoryConservation<T>
+    public class HistoryConservation<T> : IHistoryConservation<T>
     {
 
+        private readonly string directoryPath;
+        private readonly string fileType;
 
-        private DataSerializeToFormat<T> dataSerializeToFormat;
-        public HistoryConservation(DataSerializeToFormat<T> dataSerializeToFormat) {
+        private readonly IDataSerialize<T> dataSerializeToFormat;
+        public HistoryConservation(IDataSerialize<T> dataSerializeToFormat, string directoryPath,string fileType ) {
             this.dataSerializeToFormat = dataSerializeToFormat;
+            this.directoryPath = directoryPath;
+            this.fileType = fileType;
         }
-        public Task<IEnumerable<T>> GetConservationAsync()
+        public async Task<T> GetConservationAsync(string fileName)
         {
-            throw new NotImplementedException();
+            string filePath = Path.Combine(directoryPath, fileName + ".json");
+
+            
+            if(!File.Exists(filePath))
+            {
+                throw new ArgumentException("There exits no Conservation with that name");
+            }
+            using (FileStream fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+            using (StreamReader streamReader = new StreamReader(fileStream))
+            {
+                string conservationJson = await streamReader.ReadToEndAsync();
+                T deserializedData = dataSerializeToFormat.DeserializeFromFormat<Message>(conservationJson)
+                    ?? throw new Exception("Failed to deserialize JSON.");
+
+                return deserializedData;
+            }
+
+
         }
 
-        public async Task<IEnumerable<string>> GetConservationsAsync()
+
+        public async Task<List<string>> GetConservationsAsync()
         {
             return await Task.Run(() =>
             {
@@ -35,8 +58,11 @@ namespace TDDD49Lab.Models
                     conservationFilenames.Add(new ConservationFilename(file));
                 }
 
-                return conservationFilenames.OrderByDescending(x => x.ConnverstionHappend).ToList();
+                var names = conservationFilenames.OrderByDescending(x => x.ConnverstionHappend).ToList();
+                return names.Select(x => x.ToString()).ToList();
             });
         }
+
+      
     }
 }

@@ -9,9 +9,9 @@ namespace TDDD49Lab.Models.Interfaces
     public interface IHistoryConservation<T>
     {
 
-        Task<IEnumerable<string>> GetConservationsAsync();
+        Task<List<string>> GetConservationsAsync();
 
-        Task<IEnumerable<T>> GetConservationAsync();
+        Task<T> GetConservationAsync(string fileName);
 
 
     }

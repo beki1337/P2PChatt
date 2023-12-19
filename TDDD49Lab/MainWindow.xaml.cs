@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -14,6 +16,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using TDDD49Lab.Models;
+using TDDD49Lab.Models.Interfaces;
+using TDDD49Lab.Models.WrapperModels;
 using TDDD49Lab.ViewModels;
 
 
@@ -28,7 +32,14 @@ namespace TDDD49Lab
         public MainWindow()
         {
             InitializeComponent();
-            this.DataContext = new MainViewModel(new Chatt());
+
+            Func<ITcpClient> createClient = () => new TcpClientWrapper();
+            Func<IPEndPoint, ITcpListener> createListner = (IPEndPoint endPoint) => new TcpListenerWrapper(endPoint.Address.ToString(),endPoint.Port);
+            IDataSerialize<IMessage> dataSerialize = new DataSerializer<IMessage>();
+            INetworkProtocol<IMessage> messageFactory = new MessageFactory( new DatetimeWrapper());
+            IConservation<IMessage>  Conservation = new Conservation<IMessage>(new MemoryStream(), dataSerialize);
+
+            this.DataContext = new MainViewModel(new Chatt(new NetworkHandler<IMessage>(createListner, createClient, messageFactory,dataSerialize), Conservation));
         }
 
 

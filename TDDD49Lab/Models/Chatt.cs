@@ -10,99 +10,49 @@ using System.Windows;
 using System.Windows.Controls;
 using TDDD49Lab.Models.ClassEventArgs;
 using TDDD49Lab.Models.Interfaces;
+using TDDD49Lab.Models.Enums;
 
 namespace TDDD49Lab.Models
 {
-    public  class Chatt : IChatt
+    public class Chatt : IChatt
     {
-        private ITcpClient? _tcpClient;
-        private StreamReader? _reader;
-        private StreamWriter? _writer;
-        private string _username = "Unkown";
-        private string _otheruserName = "Unkown";
-        private bool _isRunning = false;
-        private bool _isConnected = false;
-        private Conservation conservation = new Conservation("Hentris");
 
-        public delegate bool ShowMessageBoxDelegate(string username);
+        private readonly INetworkHandler<IMessage> _networkHandler;
+        private readonly IConservation<IMessage> _conservation;
 
-      
-        public async Task Serach(ShowMessageBoxDelegate showMessageBox,ITcpClient tcpClient)
+        private string sdsd;
+        
+
+        public Chatt(INetworkHandler<IMessage> handler, IConservation<IMessage> conservation)
         {
-            if (!_isRunning || !_isConnected)
-            {
-                throw new InvalidOperationException("The method cannot be executed because the chatt is running or connected.");
-            }
-            _tcpClient = tcpClient;
-            var ipEndPoint = new IPEndPoint(IPAddress.Loopback, 13);
-          
-            try
-            {
-                _isRunning = true;
-                await _tcpClient.ConnectAsync(ipEndPoint);
-                _reader = new StreamReader(_tcpClient.GetStream());
-                _writer = new StreamWriter(_tcpClient.GetStream());
-               
-                await SendConnectionRequest("Serachin");
-                string otherUserName = await _reader.ReadLineAsync() ?? "null";
-                await AskUserToAcceptConnectionAsync(otherUserName,  showMessageBox);
-               
-
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.GetType().Name);
-            }
-            await ListenForMessages();
-
-        }
-
-
-        public async Task StartListingForUsers(ShowMessageBoxDelegate showMessageBox, ITcpListener tcpListener)
-        {
-            if (!_isRunning || !_isConnected)
-            {
-                throw new InvalidOperationException("The method cannot be executed because the chatt is running or connected.");
-            }
-            _username = "Listing";
-            _isRunning = true;
-            ITcpListener listener = tcpListener;
-
-            listener.Start();
-            ITcpClient _tcpClient = await listener.AcceptTcpClientAsync();
-            listener.Stop();
-            _reader = new StreamReader(_tcpClient.GetStream());
-            _writer = new StreamWriter(_tcpClient.GetStream());
-            await SendConnectionRequest("Listener");
-            string otherUserName = await _reader.ReadLineAsync() ?? "null";
-            await AskUserToAcceptConnectionAsync(otherUserName, showMessageBox);
-            await ListenForMessages();
-        }
-
-
-       
-        private async Task AskUserToAcceptConnectionAsync(string otherUserName, ShowMessageBoxDelegate showMessageBox)
-        {
-            NetWorkProtocolChatt netWorkProtocolChatt = NetWorkProtocolChatt.FromJson(otherUserName);
             
-            if (!showMessageBox(netWorkProtocolChatt.Username))
-            {
-                if (_writer != null)
-                {
-                    await SendDeclineRequest(otherUserName);
-                }
-                else
-                {
-                    throw new NullReferenceException("The _write is null");
-                }
-
-            }
+            _networkHandler = handler;
+            _conservation = conservation;
         }
+
+
+
+
+        public async Task<string> SearchAsync(string username, string ipAddres, int port)
+        {
+            sdsd = "serache";
+            IMessage retrivedUsername = await _networkHandler.Connect(ipAddres, port);
+            return retrivedUsername.Username;
+        }
+
+
+        public async Task<string> StartListingForUsersAsync(string username, string ipAddres, int port)
+        {
+            sdsd = "Listeing";
+            IMessage message = await _networkHandler.Listen(ipAddres, port);
+            return message.Username;
+        }
+
 
 
         public bool IsRunning()
         {
-            return _isRunning;
+            return _networkHandler.CurrentNetworkStatet() != NetworkState.Ideal;
         }
 
 
@@ -111,144 +61,82 @@ namespace TDDD49Lab.Models
             MessageReceived += method;
         }
 
-
-        public async Task Disconnect()
+        public async Task DisconnectAsync()
         {
 
-            await SendDisconnectMessage("Defulat");
-            _isRunning = false;
-            CloseClients();
+            await _networkHandler.Disconect();
+            DisconnectReceived?.Invoke(this);
         }
 
+        public async Task DeclineRequest()
+        {
+            await _networkHandler.DeclineRequest();
+        }
 
-        private event MessageRecivedEventHandler MessageReceived;
+        public async Task<bool> AcceptRequest()
+        {
+           return  await _networkHandler.AcceptConnection();
+        }
 
 
         public delegate void MessageRecivedEventHandler(object sender, MessageEventArgs e);
 
-        private string MakeConnenectionMessage(string username)
+        public delegate void DisconnecRecivedEventHandler(object sender);
+
+        private event MessageRecivedEventHandler MessageReceived;
+
+        private event DisconnecRecivedEventHandler DisconnectReceived;
+        public async Task SendMessageAsync(string message)
         {
-            return new NetWorkProtocolChatt(NetworkProtocolTypes.EstablishConnection, username,"").ToJson();
+            await _networkHandler.SendMessage(message);
         }
 
-        private string CreateDeclineConection(string username)
-        {
-            return new NetWorkProtocolChatt(NetworkProtocolTypes.DeniedConnection, username, "").ToJson();
-        }
-
-        private string CreatDisconnectMessage(string username)
-        {
-            return new NetWorkProtocolChatt(NetworkProtocolTypes.Disconnect, username, "").ToJson();
-        }
-
-        private string CreatMesssage(string username,string message)
-        {
-            return new NetWorkProtocolChatt(NetworkProtocolTypes.Message, username, message).ToJson();
-        }
-
-
-        private async Task SendConnectionRequest(string username)
-        {
-            string message = MakeConnenectionMessage(username);
-            await SendMessage(message);
-           
-        }
-
-
-        public async Task SendUserMessage(string username, string message)
-        {
-            string message1 = CreatMesssage(username, message);
-            conservation.AddMessage(new("asdasd","asdfsdfdsfsdfdsf",true,DateTime.Now));
-            await SendMessage(message1);
-            OnMessageRecived(username, message);
-        }
-
-        private async Task SendDeclineRequest(string username)
-        {
-            string message = CreateDeclineConection(username);
-            await SendMessage(message);
-            _isRunning = false;
-            CloseClients();
-        }
-
-        private async Task SendDisconnectMessage(string username)
-        {
-            string message = CreatDisconnectMessage(username);
-            await SendMessage(message);
-            _isRunning = false;
-            CloseClients();
-            await conservation.SendToWritte();
-        }
-
-
-
-        private void CloseClients()
-        {
-            _reader?.Close();
-            _writer?.Close();
-        }
-
-        public async Task SendMessage(string message)
-        {
-            message+="\n";
-           
-            if (_writer is not null)
-            {
-                await _writer.WriteAsync(message);
-                await _writer.FlushAsync();
-            }
-
-        }
 
 
         private void OnMessageRecived(string username, string message)
-        {
-            MessageReceived?.Invoke(this, new MessageEventArgs(username, message));
+        { 
+           MessageReceived?.Invoke(this, new MessageEventArgs(username, message));
         }
 
-        private async Task ListenForMessages()
+       
+
+        public async Task ListenForMessagesAsync()
         {
-
-           
-
-            while (IsRunning())
+            bool ended = false;
+            await foreach (IMessage message in _networkHandler.GetMessages())
             {
-                await Task.Delay(5000);
-                
-                string receivedData = await _reader.ReadLineAsync() ?? throw new ArgumentNullException("Haha");
-              
-                
-                NetWorkProtocolChatt netWorkProtocolChatt = NetWorkProtocolChatt.FromJson(receivedData);
-                switch (netWorkProtocolChatt.Type)
+
+                if (ended)
                 {
-                    case "deniedconnection":
-                        MessageBox.Show($"The other part diend the request {receivedData}");
-                        CloseClients();
-                        _isRunning = false;
+                    break;
+                }
+                switch (message.NetworkProtocolType)
+                {
+                    case NetworkProtocolTypes.Message:
+                        OnMessageRecived(message.Username, message.MessageText);
+                        await _conservation.AddMessage(message);
                         break;
-                    case "disconnect":
-                        MessageBox.Show($"The other part has shose to disconect {receivedData}");
-                        CloseClients();
-                        await conservation.SendToWritte();
-                        _isRunning = false;
+                    case NetworkProtocolTypes.Buzz:
                         break;
-                    case "message":
-                        MessageBox.Show($"Recived message {netWorkProtocolChatt.Message}");
-                        OnMessageRecived(_username, netWorkProtocolChatt.Message);
-                        conservation.AddMessage(new(netWorkProtocolChatt.Username, netWorkProtocolChatt.Message, false,DateTime.Now));
+                    case NetworkProtocolTypes.Disconnect:
+                        MessageBox.Show("It has been disconnect");
+                        _networkHandler.Dispose();
+                        DisconnectReceived?.Invoke(this);
+                        ended = true;
                         break;
                     default:
-                        break;
+                        MessageBox.Show("default"); break;
+
                 }
-
             }
+            MessageBox.Show($"NU är vi klara med den här saken {sdsd}");
 
-
-            MessageBox.Show("We have ende a cylce");
         }
 
-
-
-
+        public void SubscribeToDisconnec(DisconnecRecivedEventHandler method)
+        {
+            DisconnectReceived += method;
+        }
     }
+    
 }

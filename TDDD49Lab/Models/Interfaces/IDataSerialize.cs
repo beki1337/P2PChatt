@@ -10,6 +10,6 @@ namespace TDDD49Lab.Models.Interfaces
     {
         string SerializeToFormat(T obj);
 
-        T DeserializeFromFormat(string data);
+        T DeserializeFromFormat<TConcrete>(string? data) where TConcrete :class, IMessage;
     }
 }

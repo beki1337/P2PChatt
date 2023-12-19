@@ -7,13 +7,10 @@ using TDDD49Lab.Models.Interfaces;
 
 namespace TDDD49Lab.Models.WrapperModels
 {
-    internal class DatetimeWrapper : IDateTime
+    public class DatetimeWrapper : IDateTime
     {
 
-        private DateTime dateTime;
-        public DatetimeWrapper(DateTime dateTime) { 
-            this.dateTime = dateTime;
-        }
-        public DateTime Now => dateTime;
+      
+        public DateTime Now => DateTime.Now;
     }
 }

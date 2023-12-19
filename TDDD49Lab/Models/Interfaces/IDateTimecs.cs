@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TDDD49Lab.Models.Interfaces
 {
-    internal interface IDateTime
+    public interface IDateTime
     {
         DateTime Now { get;  }
     }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.DirectoryServices.ActiveDirectory;
 using System.Globalization;
 using System.Linq;
@@ -18,14 +19,18 @@ namespace TDDD49Lab.Models
         public DateTime ConnverstionHappend { get; init; }
         public ConservationFilename(string filename) {
 
+            filename = filename.Substring(0, filename.Length - 5);
             Match match = Regex.Match(filename, pattern);
 
             if (!match.Success)
             {
-                throw new ArgumentException("The file dose is not vaild");
+                Debug.WriteLine(filename);
+                var dd = match.Groups["Username"].Value;
+                Debug.WriteLine(dd);
+                throw new ArgumentException(filename);
             }
 
-            User = match.Groups["Usernam"].Value;  
+            User = match.Groups["Username"].Value;  
             
             if (DateTime.TryParseExact(match.Groups["Date"].Value, "yyyy-MM-dd HH-mm-ss", null, DateTimeStyles.None, out DateTime result))
             {
@@ -38,6 +43,10 @@ namespace TDDD49Lab.Models
                 throw new ArgumentException("The file dose is not vailf");
             }
         }
+
+
+
+
    
         public override string ToString()
         {

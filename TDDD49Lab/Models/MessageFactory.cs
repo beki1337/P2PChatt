@@ -9,39 +9,45 @@ using TDDD49Lab.Models.Interfaces;
 
 namespace TDDD49Lab.Models
 {
-    public class MessageFactory : INetworkProtocol<IMessage>
+    public class MessageFactory: INetworkProtocol<IMessage>
     {
+        private IDateTime dateTime;
+        
+
+        public MessageFactory(IDateTime dateTime) {
+            this.dateTime = dateTime;
+        }
+
         public IMessage CreateMessage(string username, string message)
         {
-            return new Message(username,message,true,DateTime.Now,NetworkProtocolTypes.Message);
+            return new Message(username,message,true, dateTime.Now, NetworkProtocolTypes.Message);
         }
 
         public IMessage CreateConnectionHandshake(string username)
         {
-            return new Message(username,"",true,DateTime.Now,NetworkProtocolTypes.EstablishConnection);
+            return new Message(username,"",true, dateTime.Now, NetworkProtocolTypes.EstablishConnection);
         }
 
         public IMessage CreateDeclineHandshake(string username)
         {
-            return new Message(username,"",true,DateTime.Now,NetworkProtocolTypes.DeniedConnection );
+            return new Message(username,"",true, dateTime.Now, NetworkProtocolTypes.DeniedConnection );
         }
 
         public IMessage CreateAcceptHandshake(string username)
         {
-            return new Message(username,"",true,DateTime.Now,NetworkProtocolTypes.AcceptConnection);
+            return new Message(username,"",true, dateTime.Now, NetworkProtocolTypes.AcceptConnection);
         }
 
         public IMessage CreateDisconnect(string username)
         {
-            return new Message(username,"",true,DateTime.Now,NetworkProtocolTypes.Disconnect);
+            return new Message(username,"",true, dateTime.Now, NetworkProtocolTypes.Disconnect);
         }
 
         public IMessage CreateBuzz(string username)
         {
-            return new Message(username,"",true,DateTime.Now,NetworkProtocolTypes.Buzz);
+            return new Message(username,"",true, dateTime.Now, NetworkProtocolTypes.Buzz);
         }
 
-
-
+        
     }
 }

@@ -6,10 +6,11 @@ using System.Threading.Tasks;
 
 namespace TDDD49Lab.Models.Interfaces
 {
-    internal interface IConservation<T>
+    public interface IConservation<T>
     {
         Task AddMessage(T message);
 
+        Task CloseConservationAsync();
 
     }
 }
